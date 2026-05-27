@@ -5,6 +5,7 @@ veggie_burritos:
   kids_rating: 5
   adult_rating: 7
   dinner_count: 1
+  variety_group: mexican
 
 pasta_meat_sauce:
   title: "Pasta with Meat Sauce"
@@ -13,6 +14,7 @@ pasta_meat_sauce:
   kids_rating: 8
   adult_rating: 7
   dinner_count: 1
+  variety_group: pasta
 
 perogies:
   title: "Perogies and veggies"
@@ -70,6 +72,7 @@ chicken_parm:
   kids_rating: 9
   adult_rating: 8
   dinner_count: 1
+  variety_group: pasta
 
 burgers:
   title: "Burgers, fries and veggies"
@@ -87,6 +90,7 @@ chicken_burgers:
   kids_rating: 7
   adult_rating: 8
   dinner_count: 1
+  variety_group: burger
 
 hamburger_helper:
   title: "Hamburger Helper"
@@ -103,6 +107,7 @@ beef_tacos:
   kids_rating: 8
   adult_rating: 8
   dinner_count: 1
+  variety_group: mexican
 
 chicken_tacos:
   title: "Chicken Tacos"
@@ -111,6 +116,7 @@ chicken_tacos:
   kids_rating: 8
   adult_rating: 8
   dinner_count: 1
+  variety_group: mexican
 
 carrot_broccoli_soup:
   title: "Carrot Broccoli Soup and Bread"
@@ -120,6 +126,7 @@ carrot_broccoli_soup:
   adult_rating: 8
   dinner_count: 1
   seasonal_preference: cold_months
+  variety_group: soup
 
 zuppa_toscana:
   title: "Zuppa Toscana and Bread"
@@ -129,3 +136,4 @@ zuppa_toscana:
   adult_rating: 9
   dinner_count: 1
   seasonal_preference: cold_months
+  variety_group: soup

@@ -56,7 +56,40 @@ class MealPlanTest < ActiveSupport::TestCase
     assert overlap.empty?, "Generated plan included #{overlap.size} meal(s) from last week's plan"
   end
 
-  # Requirement 5: seasonal filtering.
+  # Requirement 5: variety group filtering.
+  # At most one meal per variety group should appear in a generated plan.
+  test "selects at most one meal per variety group" do
+    # November 7, 2026 is a Saturday in cold season — enough diverse eligible meals
+    selected = MealPlan.generate(week_start_date: Date.new(2026, 11, 7), meal_count: 6)
+
+    variety_groups = selected.filter_map(&:variety_group)
+    assert_equal variety_groups.uniq.length, variety_groups.length,
+      "Generated plan contains multiple meals from the same variety group: #{variety_groups.tally.select { |_, n| n > 1 }.keys}"
+  end
+
+  # When the only eligible meals share a variety group, the second pass fills remaining
+  # nights by relaxing the group constraint rather than leaving the plan short.
+  test "falls back to variety group repeats when needed to meet meal_count" do
+    # Put every cold-season-eligible non-soup meal in last week's plan so only
+    # the two soups (same variety_group: "soup") remain eligible.
+    oct_31 = Date.new(2026, 10, 31) # Saturday before Nov 7, cold season
+    nov_7  = Date.new(2026, 11, 7)
+
+    # "IS DISTINCT FROM" correctly includes NULL variety_group rows (unlike !=).
+    non_soups = Meal.where(seasonal_preference: %w[year_round cold_months])
+                    .where("variety_group IS DISTINCT FROM ?", "soup")
+    prev = MealPlan.create!(week_start_date: oct_31, meal_count: non_soups.count)
+    prev.meals = non_soups.to_a
+
+    selected = MealPlan.generate(week_start_date: nov_7, meal_count: 2)
+
+    assert_equal 2, selected.sum(&:dinner_count),
+      "Expected both dinner nights filled via second-pass fallback"
+    assert_equal [ "soup", "soup" ], selected.map(&:variety_group).sort,
+      "Expected both selected meals to be from the soup variety group"
+  end
+
+  # Requirement 6: seasonal filtering.
   # warm_months meals (bbq_chicken, burgers) must not appear in cold-season weeks.
   test "excludes warm_months meals when generating for a cold-season week" do
     # November 7, 2026 is a Saturday in cold season (Oct–Mar)

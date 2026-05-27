@@ -149,6 +149,23 @@ Meal.find_or_create_by!(
   adult_rating: 9,
 )
 
+# Set variety groups — idempotent, safe to re-run.
+# Meals in the same group won't both appear in the same week's suggestions.
+{
+  "Carrot Broccoli Soup and Bread"         => "soup",
+  "Zuppa Toscana and Bread"                => "soup",
+  "Beef Tacos"                             => "mexican",
+  "Chicken Tacos"                          => "mexican",
+  "Chicken Quesadillas"                    => "mexican",
+  "Veggie Burritos"                        => "mexican",
+  "Burgers, fries and veggies"             => "burger",
+  "Chicken Burgers, fries and veggies"     => "burger",
+  "Pasta with Meat Sauce"                  => "pasta",
+  "Chicken Parmesean"                      => "pasta",
+}.each do |title, group|
+  Meal.where(title: title).update_all(variety_group: group)
+end
+
 # Set seasonal preferences — idempotent, safe to re-run.
 {
   "Barbeque Chicken, veggies and potatoes" => "warm_months",

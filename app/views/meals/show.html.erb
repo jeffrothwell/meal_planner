@@ -29,6 +29,7 @@
 
 <p><strong>Dinner nights per use:</strong> <%= @meal.dinner_count %></p>
 <p><strong>Season:</strong> <%= Meal::SEASONAL_PREFERENCE_LABELS[@meal.seasonal_preference] %></p>
+<p><strong>Variety group:</strong> <%= @meal.variety_group.presence || "None" %></p>
 
 <% if @meal.recipe_url.present? %>
   <p><%= link_to "View recipe →", @meal.recipe_url, target: "_blank", rel: "noopener noreferrer" %></p>

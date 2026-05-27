@@ -43,13 +43,31 @@ class MealPlan < ApplicationRecord
 
     selected = []
     nights = 0
+    used_variety_groups = Set.new
+
+    # First pass: respect variety groups — at most one meal per group.
     scored.each do |meal, _|
       remaining = meal_count - nights
       break if remaining <= 0
       next if meal.dinner_count > remaining
+      next if meal.variety_group.present? && used_variety_groups.include?(meal.variety_group)
 
       selected << meal
       nights += meal.dinner_count
+      used_variety_groups.add(meal.variety_group) if meal.variety_group.present?
+    end
+
+    # Second pass: if still short, relax variety group constraint to meet meal_count.
+    if nights < meal_count
+      scored.each do |meal, _|
+        next if selected.include?(meal)
+        remaining = meal_count - nights
+        break if remaining <= 0
+        next if meal.dinner_count > remaining
+
+        selected << meal
+        nights += meal.dinner_count
+      end
     end
 
     selected

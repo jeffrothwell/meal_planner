@@ -42,6 +42,18 @@
   </div>
 
   <div class="form-group">
+    <%= f.label :variety_group, "Variety group" %>
+    <% existing_groups = Meal.distinct.where.not(variety_group: nil).order(:variety_group).pluck(:variety_group) %>
+    <%= f.text_field :variety_group, list: "variety-group-options", placeholder: "e.g. soup, mexican, burger" %>
+    <datalist id="variety-group-options">
+      <% existing_groups.each do |group| %>
+        <option value="<%= group %>">
+      <% end %>
+    </datalist>
+    <p class="form-hint">Meals in the same group won't both appear in the same week's suggestions. Leave blank for no restriction.</p>
+  </div>
+
+  <div class="form-group">
     <%= f.label :seasonal_preference, "Seasonal preference" %>
     <%= f.select :seasonal_preference,
           Meal::SEASONAL_PREFERENCE_LABELS.map { |value, label| [ label, value ] } %>
