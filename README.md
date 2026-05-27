@@ -1,24 +1,7 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A silly little app to help me track the repetoire of meals I make for my family dinners, and create weekly meal plans from that set of meals. Meal plan creation favours variety (recently used meals score lower), and also factors in a nutrition score as well as a rating for how much the kids like it vs how much my wife and I like it. There is a little randomness built in too in order to keep things fresh and interesting.
 
-Things you may want to cover:
+Just messing around since it's been a while since I've done a personal project and this one genuninely solves a problem I face every week: What the heck am I going to cook for dinners this week?
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+No, it's not storing the whole recipe down to the raw ingredients, and is not a grocery shopping tool.
