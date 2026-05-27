@@ -1,0 +1,51 @@
+# Last week (2026-05-17): bbq_chicken, pasta_meat_sauce, perogies,
+#   honey_garlic_chicken, caramelized_beef, shepherds_pie
+lw_bbq_chicken:
+  meal_plan: last_week
+  meal: bbq_chicken
+
+lw_pasta_meat_sauce:
+  meal_plan: last_week
+  meal: pasta_meat_sauce
+
+lw_perogies:
+  meal_plan: last_week
+  meal: perogies
+
+lw_honey_garlic_chicken:
+  meal_plan: last_week
+  meal: honey_garlic_chicken
+
+lw_caramelized_beef:
+  meal_plan: last_week
+  meal: caramelized_beef
+
+lw_shepherds_pie:
+  meal_plan: last_week
+  meal: shepherds_pie
+
+# Two weeks ago (2026-05-10): veggie_burritos, chicken_parm, burgers,
+#   beef_tacos, zuppa_toscana, carrot_broccoli_soup
+twa_veggie_burritos:
+  meal_plan: two_weeks_ago
+  meal: veggie_burritos
+
+twa_chicken_parm:
+  meal_plan: two_weeks_ago
+  meal: chicken_parm
+
+twa_burgers:
+  meal_plan: two_weeks_ago
+  meal: burgers
+
+twa_beef_tacos:
+  meal_plan: two_weeks_ago
+  meal: beef_tacos
+
+twa_zuppa_toscana:
+  meal_plan: two_weeks_ago
+  meal: zuppa_toscana
+
+twa_carrot_broccoli_soup:
+  meal_plan: two_weeks_ago
+  meal: carrot_broccoli_soup
