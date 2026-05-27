@@ -1,0 +1,9 @@
+<% content_for :title, "Edit #{@meal.title}" %>
+
+<h1>Edit <%= @meal.title %></h1>
+
+<%= render "form" %>
+
+<div style="margin-top: 0.75rem;">
+  <%= link_to "← Back", meal_path(@meal) %>
+</div>

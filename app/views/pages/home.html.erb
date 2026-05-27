@@ -1,0 +1,12 @@
+<% content_for :title, "Meal Planner" %>
+
+<h1>Welcome to Meal Planner</h1>
+
+<p>Plan your family's dinners for the week. Browse your meal library, create weekly meal plans, and get suggestions for what to cook next.</p>
+
+<div class="form-actions">
+  <%= link_to "Browse meals", meals_path, class: "btn" %>
+  <%= link_to "View all plans", meal_plans_path, class: "btn" %>
+  <%= link_to "Plan next week →", new_meal_plan_path, class: "btn btn--primary" %>
+  <%= link_to "Add a meal", new_meal_path, class: "btn" %>
+</div>

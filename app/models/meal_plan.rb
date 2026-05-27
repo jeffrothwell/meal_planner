@@ -24,13 +24,16 @@ class MealPlan < ApplicationRecord
   # Pure computation — no DB writes, no side effects on the model.
   # Returns an array of Meal records selected for the given week, sorted by score.
   # Call as many times as needed (regenerate) before the user confirms and saves.
+  # exclude_meal_ids: caller-supplied IDs to exclude on top of the automatic last-week exclusion.
   def self.generate(
     week_start_date: upcoming_week_start,
-    meal_count: DEFAULT_MEAL_COUNT
+    meal_count: DEFAULT_MEAL_COUNT,
+    exclude_meal_ids: []
   )
     last_week_start = week_start_date - 7.days
-    excluded_ids = find_by(week_start_date: last_week_start)&.meal_ids || []
-    eligible = Meal.where.not(id: excluded_ids)
+    last_week_ids = find_by(week_start_date: last_week_start)&.meal_ids || []
+    all_excluded = (last_week_ids + Array(exclude_meal_ids)).uniq
+    eligible = Meal.where.not(id: all_excluded)
 
     recency = recency_lookup(eligible, week_start_date)
 
@@ -49,6 +52,12 @@ class MealPlan < ApplicationRecord
     end
 
     selected
+  end
+
+  # Returns a single Meal suggestion for a swap slot.
+  # exclude_meal_ids should include all meals currently in the plan.
+  def self.suggest_swap(week_start_date: upcoming_week_start, exclude_meal_ids: [])
+    generate(week_start_date: week_start_date, meal_count: 1, exclude_meal_ids: exclude_meal_ids).first
   end
 
   private

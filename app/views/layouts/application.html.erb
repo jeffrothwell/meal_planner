@@ -24,6 +24,17 @@
   </head>
 
   <body>
-    <%= yield %>
+    <nav class="app-nav">
+      <span class="app-nav__brand"><%= link_to "🍽 Meal Planner", root_path %></span>
+      <span class="app-nav__links">
+        <%= link_to "Meals", meals_path %>
+        <%= link_to "Plans", meal_plans_path %>
+        <%= link_to "Plan next week →", new_meal_plan_path, class: "app-nav__cta" %>
+      </span>
+    </nav>
+
+    <main class="app-main">
+      <%= yield %>
+    </main>
   </body>
 </html>

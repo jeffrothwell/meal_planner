@@ -1,0 +1,9 @@
+<h1>Edit plan for week of <%= @plan.week_start_date.strftime("%B %-d, %Y") %></h1>
+
+<%= render "plan_editor",
+     form_action: meal_plan_path(@plan),
+     form_method: :patch,
+     week_start_date: @plan.week_start_date,
+     meal_count: @plan.meal_count,
+     meals: @meals,
+     all_meals: Meal.order(:title) %>

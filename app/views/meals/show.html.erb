@@ -1,0 +1,39 @@
+<% content_for :title, @meal.title %>
+
+<h1><%= @meal.title %></h1>
+
+<% if notice.present? %>
+  <div class="flash-notice"><%= notice %></div>
+<% end %>
+
+<p><%= @meal.description %></p>
+
+<h2>Ratings</h2>
+<p>
+  <% if @meal.nutrition_rating %>
+    <span class="rating-badge">Nutrition: <%= @meal.nutrition_rating %>/10</span>
+  <% else %>
+    <span style="color:#aaa;">Nutrition: –</span>
+  <% end %>
+  <% if @meal.kids_rating %>
+    <span class="rating-badge">Kids: <%= @meal.kids_rating %>/10</span>
+  <% else %>
+    <span style="color:#aaa;">Kids: –</span>
+  <% end %>
+  <% if @meal.adult_rating %>
+    <span class="rating-badge">Adult: <%= @meal.adult_rating %>/10</span>
+  <% else %>
+    <span style="color:#aaa;">Adult: –</span>
+  <% end %>
+</p>
+
+<p><strong>Dinner nights per use:</strong> <%= @meal.dinner_count %></p>
+
+<% if @meal.recipe_url.present? %>
+  <p><%= link_to "View recipe →", @meal.recipe_url, target: "_blank", rel: "noopener noreferrer" %></p>
+<% end %>
+
+<div class="form-actions">
+  <%= link_to "Edit", edit_meal_path(@meal), class: "btn" %>
+  <%= link_to "← Back to meals", meals_path, class: "btn" %>
+</div>

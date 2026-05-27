@@ -10,7 +10,7 @@ class Meal < ApplicationRecord
 
   def rating_validator
     RATING_ATTRIBUTES.each do |rating|
-      return if send(rating).nil? || (0..10).include?(send(rating))
+      next if send(rating).nil? || (0..10).include?(send(rating))
 
       errors.add(:base, "Rating must be between 0 and 10")
     end

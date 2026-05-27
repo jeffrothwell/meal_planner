@@ -1,0 +1,25 @@
+<% if @existing_plan %>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <h2>Plan already exists</h2>
+      <p>
+        You already have a meal plan for the week of
+        <%= @existing_plan.week_start_date.strftime("%B %-d, %Y") %>.
+      </p>
+      <div class="modal-actions">
+        <%= link_to "View / edit that plan →", edit_meal_plan_path(@existing_plan), class: "btn btn--primary" %>
+        <%= link_to "Back", meal_plans_path, class: "btn" %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <h1>Plan week of <%= @week_start_date.strftime("%B %-d, %Y") %></h1>
+
+  <%= render "plan_editor",
+       form_action: meal_plans_path,
+       form_method: :post,
+       week_start_date: @week_start_date,
+       meal_count: @meal_count,
+       meals: @meals,
+       all_meals: Meal.order(:title) %>
+<% end %>
