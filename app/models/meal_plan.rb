@@ -9,9 +9,6 @@ class MealPlan < ApplicationRecord
   validate :week_start_date_is_saturday
 
   DEFAULT_MEAL_COUNT = 6
-  SCORING_WEIGHTS = { nutrition_rating: 0.25, kids_rating: 0.45, adult_rating: 0.30 }.freeze
-  MAX_RECENCY_BONUS = 3.0
-  MAX_JITTER = 2.0
 
   # The Saturday that meal planning should target right now.
   # If today is Saturday (shopping day), plan for this week.
@@ -30,47 +27,11 @@ class MealPlan < ApplicationRecord
     meal_count: DEFAULT_MEAL_COUNT,
     exclude_meal_ids: []
   )
-    last_week_start = week_start_date - 7.days
-    last_week_ids = find_by(week_start_date: last_week_start)&.meal_ids || []
-    all_excluded = (last_week_ids + Array(exclude_meal_ids)).uniq
-    seasonal_prefs = warm_season?(week_start_date) ? %w[year_round warm_months] : %w[year_round cold_months]
-    eligible = Meal.where.not(id: all_excluded).where(seasonal_preference: seasonal_prefs)
-
-    recency = recency_lookup(eligible, week_start_date)
-
-    scored = eligible.map { |m| [m, score_meal(m, recency[m.id], week_start_date)] }
-                     .sort_by { |_, s| -s }
-
-    selected = []
-    nights = 0
-    used_variety_groups = Set.new
-
-    # First pass: respect variety groups — at most one meal per group.
-    scored.each do |meal, _|
-      remaining = meal_count - nights
-      break if remaining <= 0
-      next if meal.dinner_count > remaining
-      next if meal.variety_group.present? && used_variety_groups.include?(meal.variety_group)
-
-      selected << meal
-      nights += meal.dinner_count
-      used_variety_groups.add(meal.variety_group) if meal.variety_group.present?
-    end
-
-    # Second pass: if still short, relax variety group constraint to meet meal_count.
-    if nights < meal_count
-      scored.each do |meal, _|
-        next if selected.include?(meal)
-        remaining = meal_count - nights
-        break if remaining <= 0
-        next if meal.dinner_count > remaining
-
-        selected << meal
-        nights += meal.dinner_count
-      end
-    end
-
-    selected
+    MealPlanGenerator.new(
+      week_start_date: week_start_date,
+      meal_count: meal_count,
+      exclude_meal_ids: exclude_meal_ids
+    ).call
   end
 
   # Returns a single Meal suggestion for a swap slot.
@@ -88,33 +49,5 @@ class MealPlan < ApplicationRecord
   def week_start_date_is_saturday
     return if week_start_date.blank?
     errors.add(:week_start_date, "must be a Saturday") unless week_start_date.saturday?
-  end
-
-  class << self
-    private
-
-    # April (4) through September (9) = warm season.
-    # October (10) through March (3)  = cold season.
-    def warm_season?(date)
-      date.month.between?(4, 9)
-    end
-
-    def recency_lookup(eligible, week_start_date)
-      MealPlanMeal.joins(:meal_plan)
-                  .where(meal_id: eligible.map(&:id))
-                  .where.not(meal_plans: { week_start_date: week_start_date })
-                  .group(:meal_id)
-                  .maximum("meal_plans.week_start_date")
-    end
-
-    def score_meal(meal, last_used_on, week_start_date)
-      base = SCORING_WEIGHTS.sum { |attr, weight| (meal.send(attr) || 0) * weight }
-      recency_bonus = if last_used_on.nil?
-        MAX_RECENCY_BONUS
-      else
-        [((week_start_date - last_used_on) / 7.0).floor * 0.5, MAX_RECENCY_BONUS].min
-      end
-      base + recency_bonus + (rand * MAX_JITTER)
-    end
   end
 end
