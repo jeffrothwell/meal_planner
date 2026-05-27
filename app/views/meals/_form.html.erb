@@ -42,6 +42,13 @@
   </div>
 
   <div class="form-group">
+    <%= f.label :seasonal_preference, "Seasonal preference" %>
+    <%= f.select :seasonal_preference,
+          Meal::SEASONAL_PREFERENCE_LABELS.map { |value, label| [ label, value ] } %>
+    <p class="form-hint">Limits when this meal is suggested during plan generation.</p>
+  </div>
+
+  <div class="form-group">
     <%= f.label :recipe_url, "Recipe URL" %>
     <%= f.url_field :recipe_url %>
   </div>

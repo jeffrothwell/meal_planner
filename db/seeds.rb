@@ -149,6 +149,17 @@ Meal.find_or_create_by!(
   adult_rating: 9,
 )
 
+# Set seasonal preferences — idempotent, safe to re-run.
+{
+  "Barbeque Chicken, veggies and potatoes" => "warm_months",
+  "Burgers, fries and veggies"             => "warm_months",
+  "Chicken Burgers, fries and veggies"     => "warm_months",
+  "Carrot Broccoli Soup and Bread"         => "cold_months",
+  "Zuppa Toscana and Bread"                => "cold_months",
+}.each do |title, preference|
+  Meal.where(title: title).update_all(seasonal_preference: preference)
+end
+
 # Seed meal plans for the previous 4 weeks.
 # Generate oldest-first so each week's last-week exclusion builds on the one before it.
 # Skips any week that already has a plan.

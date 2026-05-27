@@ -29,6 +29,7 @@ bbq_chicken:
   kids_rating: 8
   adult_rating: 9
   dinner_count: 1
+  seasonal_preference: warm_months
 
 pizza:
   title: "Pizza"
@@ -77,6 +78,7 @@ burgers:
   kids_rating: 7
   adult_rating: 8
   dinner_count: 1
+  seasonal_preference: warm_months
 
 chicken_burgers:
   title: "Chicken Burgers, fries and veggies"
@@ -117,6 +119,7 @@ carrot_broccoli_soup:
   kids_rating: 7
   adult_rating: 8
   dinner_count: 1
+  seasonal_preference: cold_months
 
 zuppa_toscana:
   title: "Zuppa Toscana and Bread"
@@ -125,3 +128,4 @@ zuppa_toscana:
   kids_rating: 7
   adult_rating: 9
   dinner_count: 1
+  seasonal_preference: cold_months

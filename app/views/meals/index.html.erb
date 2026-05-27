@@ -17,6 +17,7 @@
       <th>Description</th>
       <th>Ratings</th>
       <th>Dinner nights</th>
+      <th>Season</th>
       <th>Last planned</th>
     </tr>
   </thead>
@@ -44,6 +45,7 @@
           <% end %>
         </td>
         <td><%= meal.dinner_count %></td>
+        <td><%= Meal::SEASONAL_PREFERENCE_LABELS[meal.seasonal_preference] %></td>
         <td><%= last_planned&.strftime("%b %-d, %Y") || "Never" %></td>
       </tr>
     <% end %>

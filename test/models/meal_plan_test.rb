@@ -56,6 +56,27 @@ class MealPlanTest < ActiveSupport::TestCase
     assert overlap.empty?, "Generated plan included #{overlap.size} meal(s) from last week's plan"
   end
 
+  # Requirement 5: seasonal filtering.
+  # warm_months meals (bbq_chicken, burgers) must not appear in cold-season weeks.
+  test "excludes warm_months meals when generating for a cold-season week" do
+    # November 7, 2026 is a Saturday in cold season (Oct–Mar)
+    selected = MealPlan.generate(week_start_date: Date.new(2026, 11, 7), meal_count: 5)
+
+    warm_ids = Meal.where(seasonal_preference: "warm_months").pluck(:id).to_set
+    overlap  = selected.map(&:id).to_set & warm_ids
+    assert overlap.empty?, "Generated plan included warm_months meal(s) in a cold-season week"
+  end
+
+  # cold_months meals (carrot_broccoli_soup, zuppa_toscana) must not appear in warm-season weeks.
+  test "excludes cold_months meals when generating for a warm-season week" do
+    # July 4, 2026 is a Saturday in warm season (Apr–Sep)
+    selected = MealPlan.generate(week_start_date: Date.new(2026, 7, 4), meal_count: 5)
+
+    cold_ids = Meal.where(seasonal_preference: "cold_months").pluck(:id).to_set
+    overlap  = selected.map(&:id).to_set & cold_ids
+    assert overlap.empty?, "Generated plan included cold_months meal(s) in a warm-season week"
+  end
+
   # Requirement 4: randomness produces variation between calls.
   # We fix two different seeds and verify they yield different selections.
   test "different random seeds produce different meal selections" do

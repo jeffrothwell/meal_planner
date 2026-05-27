@@ -46,6 +46,7 @@ class MealsController < ApplicationController
       :kids_rating,
       :adult_rating,
       :dinner_count,
+      :seasonal_preference,
       :recipe_url
     )
   end

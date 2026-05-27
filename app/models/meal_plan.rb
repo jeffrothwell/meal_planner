@@ -33,7 +33,8 @@ class MealPlan < ApplicationRecord
     last_week_start = week_start_date - 7.days
     last_week_ids = find_by(week_start_date: last_week_start)&.meal_ids || []
     all_excluded = (last_week_ids + Array(exclude_meal_ids)).uniq
-    eligible = Meal.where.not(id: all_excluded)
+    seasonal_prefs = warm_season?(week_start_date) ? %w[year_round warm_months] : %w[year_round cold_months]
+    eligible = Meal.where.not(id: all_excluded).where(seasonal_preference: seasonal_prefs)
 
     recency = recency_lookup(eligible, week_start_date)
 
@@ -73,6 +74,12 @@ class MealPlan < ApplicationRecord
 
   class << self
     private
+
+    # April (4) through September (9) = warm season.
+    # October (10) through March (3)  = cold season.
+    def warm_season?(date)
+      date.month.between?(4, 9)
+    end
 
     def recency_lookup(eligible, week_start_date)
       MealPlanMeal.joins(:meal_plan)
