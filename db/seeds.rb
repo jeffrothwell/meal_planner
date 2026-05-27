@@ -148,3 +148,23 @@ Meal.find_or_create_by!(
   kids_rating: 8,
   adult_rating: 9,
 )
+
+# Seed meal plans for the previous 4 weeks.
+# Generate oldest-first so each week's last-week exclusion builds on the one before it.
+# Skips any week that already has a plan.
+upcoming = MealPlan.upcoming_week_start
+
+4.downto(1) do |weeks_ago|
+  week_start = upcoming - weeks_ago.weeks
+
+  if MealPlan.exists?(week_start_date: week_start)
+    puts "  Meal plan for #{week_start.strftime('%b %-d, %Y')} already exists, skipping."
+    next
+  end
+
+  meals = MealPlan.generate(week_start_date: week_start, meal_count: MealPlan::DEFAULT_MEAL_COUNT)
+  plan  = MealPlan.create!(week_start_date: week_start, meal_count: MealPlan::DEFAULT_MEAL_COUNT)
+  plan.meal_ids = meals.map(&:id)
+
+  puts "  Created meal plan for #{week_start.strftime('%b %-d, %Y')}: #{meals.map(&:title).join(', ')}"
+end
