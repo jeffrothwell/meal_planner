@@ -22,7 +22,7 @@ export default class extends Controller {
       weekStartDate: this.weekStartDateValue,
       mealCount: this.mealCountValue,
       meals: this.initialMealsValue,  // already a parsed array
-      manuallyExcludedIds: []
+      manuallyExcludedIds: []  // any meal removed or swapped out — excluded from future suggestions
     }
     this.allMeals = this.allMealsValue  // already a parsed array
     this.render()
@@ -129,6 +129,9 @@ export default class extends Controller {
     const newMeal = this.allMeals.find(m => m.id === newMealId)
     if (!newMeal) return
 
+    if (!this.state.manuallyExcludedIds.includes(id)) {
+      this.state.manuallyExcludedIds.push(id)
+    }
     this.state.meals = this.state.meals.map(m => m.id === id ? newMeal : m)
 
     // Close all swap panels
@@ -141,9 +144,16 @@ export default class extends Controller {
 
   async pickForMe(event) {
     const id = parseInt(event.currentTarget.dataset.mealId)
-    const excludeIds = this.state.meals
-      .filter(m => m.id !== id)
-      .map(m => m.id)
+
+    // Record the displaced meal so it can't cycle back on repeated picks
+    if (!this.state.manuallyExcludedIds.includes(id)) {
+      this.state.manuallyExcludedIds.push(id)
+    }
+
+    const excludeIds = [
+      ...this.state.meals.filter(m => m.id !== id).map(m => m.id),
+      ...this.state.manuallyExcludedIds
+    ]
 
     const params = new URLSearchParams()
     params.set("week_start_date", this.state.weekStartDate)
