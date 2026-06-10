@@ -34,10 +34,12 @@ class MealPlan < ApplicationRecord
     ).call
   end
 
-  # Returns a single Meal suggestion for a swap slot.
+  # Returns an array of Meal suggestions to fill the given number of dinner nights.
+  # meal_count should match the dinner_count of the meal being replaced so the
+  # plan's total night count stays the same after the swap.
   # exclude_meal_ids should include all meals currently in the plan.
-  def self.suggest_swap(week_start_date: upcoming_week_start, exclude_meal_ids: [])
-    generate(week_start_date: week_start_date, meal_count: 1, exclude_meal_ids: exclude_meal_ids).first
+  def self.suggest_swap(week_start_date: upcoming_week_start, meal_count: 1, exclude_meal_ids: [])
+    generate(week_start_date: week_start_date, meal_count: meal_count, exclude_meal_ids: exclude_meal_ids)
   end
 
   private

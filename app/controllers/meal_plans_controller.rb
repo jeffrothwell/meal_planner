@@ -65,15 +65,18 @@ class MealPlansController < ApplicationController
   end
 
   def suggest_swap
-    week_start_date = Date.parse(params[:week_start_date])
+    week_start_date  = Date.parse(params[:week_start_date])
     exclude_meal_ids = Array(params[:exclude_meal_ids]).map(&:to_i)
+    swapped_meal     = Meal.find_by(id: params[:swapped_meal_id])
+    dinner_count     = swapped_meal&.dinner_count || 1
 
-    meal = MealPlan.suggest_swap(
-      week_start_date: week_start_date,
+    meals = MealPlan.suggest_swap(
+      week_start_date:  week_start_date,
+      meal_count:       dinner_count,
       exclude_meal_ids: exclude_meal_ids
     )
 
-    render json: { meal: meal ? meal_json(meal) : nil }
+    render json: { meals: meals.map { |m| meal_json(m) } }
   end
 
   private

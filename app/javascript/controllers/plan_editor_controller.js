@@ -157,6 +157,7 @@ export default class extends Controller {
 
     const params = new URLSearchParams()
     params.set("week_start_date", this.state.weekStartDate)
+    params.set("swapped_meal_id", id)
     excludeIds.forEach(eid => params.append("exclude_meal_ids[]", eid))
 
     try {
@@ -164,8 +165,12 @@ export default class extends Controller {
         headers: { Accept: "application/json" }
       })
       const data = await response.json()
-      if (data.meal) {
-        this.state.meals = this.state.meals.map(m => m.id === id ? data.meal : m)
+      if (data.meals && data.meals.length > 0) {
+        // Splice the replacement(s) in at the same position as the displaced meal.
+        // A 2-night meal may be replaced by two 1-night meals (or another 2-night meal),
+        // keeping the plan's total dinner-night count the same.
+        const idx = this.state.meals.findIndex(m => m.id === id)
+        this.state.meals.splice(idx, 1, ...data.meals)
         this.render()
       } else {
         alert("No suggestion available.")

@@ -102,16 +102,17 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   # GET /meal_plans/suggest_swap
-  test "GET /meal_plans/suggest_swap returns 200 with meal JSON" do
+  test "GET /meal_plans/suggest_swap returns 200 with meals array JSON" do
     get suggest_swap_meal_plans_path, params: {
       week_start_date: "2026-06-06",
+      swapped_meal_id: meals(:pizza).id.to_s,
       exclude_meal_ids: [ meals(:bbq_chicken).id.to_s ]
     }, as: :json
 
     assert_response :success
     body = JSON.parse(response.body)
-    assert body.key?("meal"), "Response should have 'meal' key"
-    meal = body["meal"]
-    assert meal.key?("dinnerCount"), "Meal should use camelCase dinnerCount"
+    assert body.key?("meals"), "Response should have 'meals' key"
+    assert_kind_of Array, body["meals"]
+    assert body["meals"].first.key?("dinnerCount"), "Meal should use camelCase dinnerCount"
   end
 end
