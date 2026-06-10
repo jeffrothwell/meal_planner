@@ -2,25 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getMeals } from '../api/meals'
-
-const SEASONAL_LABELS = {
-  year_round:  'Year round',
-  warm_months: 'Warm months (Apr–Sep)',
-  cold_months: 'Cold months (Oct–Mar)',
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return 'Never'
-  // Parse as local date to avoid UTC-offset display issues
-  const [year, month, day] = dateStr.split('-').map(Number)
-  return new Date(year, month - 1, day)
-    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function truncate(str, max) {
-  if (!str || str.length <= max) return str
-  return str.slice(0, max - 1) + '…'
-}
+import { SEASONAL_LABELS, formatDate, truncate } from '../utils/meals'
 
 export default function MealsPage() {
   const navigate = useNavigate()

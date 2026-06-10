@@ -11,7 +11,7 @@ class MealsController < ApplicationController
 
   def show
     respond_to do |format|
-      format.html
+      format.html { render_react_app }
       format.json { render json: meal_json(@meal) }
     end
   end
