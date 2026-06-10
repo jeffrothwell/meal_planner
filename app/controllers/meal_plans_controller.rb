@@ -4,7 +4,7 @@ class MealPlansController < ApplicationController
   def index
     @plans = MealPlan.includes(:meals).order(week_start_date: :desc)
     respond_to do |format|
-      format.html
+      format.html { render_react_app }
       format.json { render json: @plans.map { |p| plan_json(p) } }
     end
   end
