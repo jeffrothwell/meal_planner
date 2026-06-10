@@ -21,13 +21,13 @@ class Meal < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
-  validate :rating_validator, on: :create
+  validate :rating_validator
 
   def rating_validator
     RATING_ATTRIBUTES.each do |rating|
       next if send(rating).nil? || (0..10).include?(send(rating))
 
-      errors.add(:base, "Rating must be between 0 and 10")
+      errors.add(rating, "must be between 0 and 10")
     end
   end
 end

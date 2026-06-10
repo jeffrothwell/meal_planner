@@ -132,6 +132,20 @@ tr.clickable-row { cursor: pointer; }
   margin-right: 0.3rem;
 }
 
+/* ── Field-level validation errors ─────────────── */
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.15);
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
 /* ── Flash / notice messages ────────────────────── */
 .flash-notice, .flash-alert {
   padding: 0.65rem 1rem;

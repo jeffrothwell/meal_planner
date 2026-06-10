@@ -15,7 +15,11 @@ async function request(path, { method = 'GET', body } = {}) {
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}))
-    const error = new Error(data.error || data.errors?.join(', ') || response.statusText)
+    // errors is an object keyed by field name — flatten to a single summary message
+    const summary = data.error
+      || Object.values(data.errors || {}).flat().join(', ')
+      || response.statusText
+    const error = new Error(summary)
     error.status = response.status
     error.data   = data
     throw error

@@ -17,7 +17,7 @@ class MealsController < ApplicationController
   end
 
   def new
-    @meal = Meal.new
+    render_react_app
   end
 
   def create
@@ -27,13 +27,14 @@ class MealsController < ApplicationController
         format.html { redirect_to @meal, notice: "Meal added." }
         format.json { render json: meal_json(@meal), status: :created }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: { errors: @meal.errors.full_messages }, status: :unprocessable_entity }
+        format.html { render_react_app(status: :unprocessable_entity) }
+        format.json { render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } }, status: :unprocessable_entity }
       end
     end
   end
 
   def edit
+    render_react_app
   end
 
   def update
@@ -42,8 +43,8 @@ class MealsController < ApplicationController
         format.html { redirect_to @meal, notice: "Meal updated." }
         format.json { render json: meal_json(@meal) }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: { errors: @meal.errors.full_messages }, status: :unprocessable_entity }
+        format.html { render_react_app(status: :unprocessable_entity) }
+        format.json { render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } }, status: :unprocessable_entity }
       end
     end
   end

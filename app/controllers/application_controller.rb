@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
 
   # Serves the React shell for HTML requests on migrated pages.
   # React Router renders the correct component; data comes via the JSON branch.
-  def render_react_app
-    render "pages/app", layout: "react"
+  def render_react_app(status: :ok)
+    render "pages/app", layout: "react", status: status
   end
 end
