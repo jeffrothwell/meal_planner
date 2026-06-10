@@ -15,25 +15,33 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  # GET /meal_plans/new — no existing plan for upcoming week
-  test "GET /meal_plans/new returns 200 and renders plan editor when no plan exists" do
-    # Today is 2026-05-27 (Wednesday), upcoming Saturday is 2026-05-30
-    # No fixture exists for 2026-05-30, so a fresh plan should be generated
+  # GET /meal_plans/new — HTML serves the React shell
+  test "GET /meal_plans/new returns 200" do
     get new_meal_plan_path
     assert_response :success
-    assert_select "[data-controller='plan-editor']"
-    assert_no_match(/already have a meal plan/, response.body)
+    assert_select "#root"
   end
 
-  # GET /meal_plans/new — plan already exists for upcoming week
-  test "GET /meal_plans/new shows existing-plan modal when plan already exists" do
+  # GET /meal_plans/new — JSON returns week date, suggestions, and all meals
+  test "GET /meal_plans/new as JSON returns weekStartDate and suggestedMeals" do
+    get new_meal_plan_path, as: :json
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert body.key?("weekStartDate"),  "Should include weekStartDate"
+    assert body.key?("suggestedMeals"), "Should include suggestedMeals"
+    assert body.key?("allMeals"),       "Should include allMeals"
+    assert_nil body["existingPlanId"],  "Should have no existingPlanId when no plan exists"
+  end
+
+  # GET /meal_plans/new — JSON returns existingPlanId when a plan already exists
+  test "GET /meal_plans/new as JSON returns existingPlanId when plan already exists" do
     upcoming = MealPlan.upcoming_week_start
     plan = MealPlan.create!(week_start_date: upcoming, meal_count: 6)
 
-    get new_meal_plan_path
+    get new_meal_plan_path, as: :json
     assert_response :success
-    assert_match(/already have a meal plan/, response.body)
-    assert_select "a[href='#{edit_meal_plan_path(plan)}']"
+    body = JSON.parse(response.body)
+    assert_equal plan.id, body["existingPlanId"]
   ensure
     plan&.destroy
   end

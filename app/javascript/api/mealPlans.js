@@ -1,9 +1,10 @@
 import { get, post, patch } from './client'
 
-export const getMealPlans  = ()           => get('/meal_plans.json')
-export const getMealPlan   = (id)         => get(`/meal_plans/${id}.json`)
-export const createMealPlan = (data)      => post('/meal_plans.json', data)
-export const updateMealPlan = (id, data)  => patch(`/meal_plans/${id}.json`, data)
+export const getMealPlans   = ()          => get('/meal_plans.json')
+export const getMealPlan    = (id)        => get(`/meal_plans/${id}.json`)
+export const getNewPlanData = ()          => get('/meal_plans/new.json')
+export const createMealPlan = (data)     => post('/meal_plans.json', data)
+export const updateMealPlan = (id, data) => patch(`/meal_plans/${id}.json`, data)
 
 export function generateMealPlan({ weekStartDate, mealCount, excludeMealIds = [] }) {
   const params = new URLSearchParams()

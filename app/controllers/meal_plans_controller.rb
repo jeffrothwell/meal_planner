@@ -1,6 +1,10 @@
 class MealPlansController < ApplicationController
   before_action :set_plan, only: [ :show, :edit, :update ]
 
+  # Disable Rails' automatic JSON param wrapping so that flat params like
+  # :week_start_date and :meal_ids are accessible directly on `params`.
+  wrap_parameters false
+
   def index
     @plans = MealPlan.includes(:meals).order(week_start_date: :desc)
     respond_to do |format|
@@ -17,14 +21,26 @@ class MealPlansController < ApplicationController
   end
 
   def new
-    @week_start_date = MealPlan.upcoming_week_start
-    existing = MealPlan.find_by(week_start_date: @week_start_date)
+    week_start_date = MealPlan.upcoming_week_start
+    existing        = MealPlan.find_by(week_start_date: week_start_date)
 
-    if existing
-      @existing_plan = existing
-    else
-      @meal_count = MealPlan::DEFAULT_MEAL_COUNT
-      @meals = MealPlan.generate(week_start_date: @week_start_date, meal_count: @meal_count)
+    respond_to do |format|
+      format.html { render_react_app }
+      format.json do
+        if existing
+          render json: { existingPlanId: existing.id }
+        else
+          meal_count     = MealPlan::DEFAULT_MEAL_COUNT
+          suggested      = MealPlan.generate(week_start_date: week_start_date, meal_count: meal_count)
+          render json: {
+            weekStartDate:  week_start_date,
+            existingPlanId: nil,
+            mealCount:      meal_count,
+            suggestedMeals: suggested.map { |m| meal_json(m) },
+            allMeals:       Meal.order(:title).map { |m| meal_json(m) }
+          }
+        end
+      end
     end
   end
 
@@ -48,9 +64,7 @@ class MealPlansController < ApplicationController
   end
 
   def edit
-    @meals           = @plan.meals
-    @week_start_date = @plan.week_start_date
-    @meal_count      = @plan.meal_count
+    render_react_app
   end
 
   def update
