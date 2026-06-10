@@ -2,12 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getMealPlans } from '../api/mealPlans'
-
-function formatWeekDate(dateStr) {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  return new Date(year, month - 1, day)
-    .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-}
+import { formatWeekDate } from '../utils/mealPlans'
 
 export default function MealPlansPage() {
   const { data: plans, isPending, isError } = useQuery({
@@ -31,7 +26,11 @@ export default function MealPlansPage() {
 
       {plans?.map(plan => (
         <div key={plan.id} style={{ marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid #e5e5e2' }}>
-          <h2 style={{ marginTop: 0 }}>Week of {formatWeekDate(plan.weekStartDate)}</h2>
+          <h2 style={{ marginTop: 0 }}>
+            <Link to={`/meal_plans/${plan.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              Week of {formatWeekDate(plan.weekStartDate)}
+            </Link>
+          </h2>
           <ul style={{ margin: '0.5rem 0' }}>
             {plan.meals.map(meal => (
               <li key={meal.id}>{meal.title}</li>
