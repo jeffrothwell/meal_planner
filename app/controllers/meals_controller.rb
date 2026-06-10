@@ -4,7 +4,7 @@ class MealsController < ApplicationController
   def index
     @meals = Meal.includes(meal_plan_meals: :meal_plan).order(updated_at: :desc)
     respond_to do |format|
-      format.html
+      format.html { render_react_app }
       format.json { render json: @meals.map { |m| meal_json(m) } }
     end
   end
