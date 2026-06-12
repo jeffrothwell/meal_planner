@@ -47,29 +47,30 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   # POST /meal_plans — valid params
-  test "POST /meal_plans with valid params redirects to plan show and increases count" do
+  test "POST /meal_plans with valid params creates plan and returns 201" do
     assert_difference("MealPlan.count", 1) do
       post meal_plans_path, params: {
         week_start_date: "2026-05-30",
-        meal_count: "6",
-        meal_ids: [ meals(:bbq_chicken).id.to_s, meals(:pizza).id.to_s ]
-      }
+        meal_count: 6,
+        meal_ids: [ meals(:bbq_chicken).id, meals(:pizza).id ]
+      }, as: :json
     end
-    assert_redirected_to meal_plan_path(MealPlan.last)
+    assert_response :created
   end
 
   # POST /meal_plans — plan already exists for that week
-  test "POST /meal_plans when plan already exists redirects to edit page" do
+  test "POST /meal_plans when plan already exists returns 409 conflict" do
     existing = MealPlan.create!(week_start_date: "2026-05-30", meal_count: 6)
 
     assert_no_difference("MealPlan.count") do
       post meal_plans_path, params: {
         week_start_date: "2026-05-30",
-        meal_count: "6",
-        meal_ids: [ meals(:bbq_chicken).id.to_s ]
-      }
+        meal_count: 6,
+        meal_ids: [ meals(:bbq_chicken).id ]
+      }, as: :json
     end
-    assert_redirected_to edit_meal_plan_path(existing)
+    assert_response :conflict
+    assert_equal existing.id, JSON.parse(response.body)["existingPlanId"]
 
     existing.destroy
   end
@@ -81,13 +82,13 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   # PATCH /meal_plans/:id
-  test "PATCH /meal_plans/:id with valid params redirects to show" do
+  test "PATCH /meal_plans/:id with valid params returns 200 with updated plan" do
     plan = meal_plans(:last_week)
     patch meal_plan_path(plan), params: {
-      meal_count: "5",
-      meal_ids: [ meals(:bbq_chicken).id.to_s ]
-    }
-    assert_redirected_to meal_plan_path(plan)
+      meal_count: 5,
+      meal_ids: [ meals(:bbq_chicken).id ]
+    }, as: :json
+    assert_response :success
     plan.reload
     assert_equal 5, plan.meal_count
     assert_equal [ meals(:bbq_chicken).id ], plan.meal_ids

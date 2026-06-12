@@ -22,14 +22,11 @@ class MealsController < ApplicationController
 
   def create
     @meal = Meal.new(meal_params)
-    respond_to do |format|
-      if @meal.save
-        format.html { redirect_to @meal, notice: "Meal added." }
-        format.json { render json: meal_json(@meal), status: :created }
-      else
-        format.html { render_react_app(status: :unprocessable_entity) }
-        format.json { render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } }, status: :unprocessable_entity }
-      end
+    if @meal.save
+      render json: meal_json(@meal), status: :created
+    else
+      render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } },
+             status: :unprocessable_entity
     end
   end
 
@@ -38,14 +35,11 @@ class MealsController < ApplicationController
   end
 
   def update
-    respond_to do |format|
-      if @meal.update(meal_params)
-        format.html { redirect_to @meal, notice: "Meal updated." }
-        format.json { render json: meal_json(@meal) }
-      else
-        format.html { render_react_app(status: :unprocessable_entity) }
-        format.json { render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } }, status: :unprocessable_entity }
-      end
+    if @meal.update(meal_params)
+      render json: meal_json(@meal)
+    else
+      render json: { errors: @meal.errors.messages.transform_keys { |k| k.to_s.camelize(:lower) } },
+             status: :unprocessable_entity
     end
   end
 

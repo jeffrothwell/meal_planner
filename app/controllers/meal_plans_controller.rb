@@ -49,17 +49,14 @@ class MealPlansController < ApplicationController
     meal_count      = params[:meal_count].to_i
     meal_ids        = params[:meal_ids]&.map(&:to_i) || []
 
-    respond_to do |format|
-      begin
-        plan = MealPlan.create!(week_start_date: week_start_date, meal_count: meal_count)
-        plan.meal_ids = meal_ids
-        format.html { redirect_to meal_plan_path(plan) }
-        format.json { render json: plan_json(MealPlan.includes(:meals).find(plan.id)), status: :created }
-      rescue ActiveRecord::RecordNotUnique
-        existing = MealPlan.find_by!(week_start_date: week_start_date)
-        format.html { redirect_to edit_meal_plan_path(existing) }
-        format.json { render json: { error: "A plan already exists for this week", existingPlanId: existing.id }, status: :conflict }
-      end
+    begin
+      plan = MealPlan.create!(week_start_date: week_start_date, meal_count: meal_count)
+      plan.meal_ids = meal_ids
+      render json: plan_json(MealPlan.includes(:meals).find(plan.id)), status: :created
+    rescue ActiveRecord::RecordNotUnique
+      existing = MealPlan.find_by!(week_start_date: week_start_date)
+      render json: { error: "A plan already exists for this week", existingPlanId: existing.id },
+             status: :conflict
     end
   end
 
@@ -73,11 +70,7 @@ class MealPlansController < ApplicationController
 
     @plan.update!(meal_count: meal_count)
     @plan.meal_ids = meal_ids
-
-    respond_to do |format|
-      format.html { redirect_to meal_plan_path(@plan) }
-      format.json { render json: plan_json(MealPlan.includes(:meals).find(@plan.id)) }
-    end
+    render json: plan_json(MealPlan.includes(:meals).find(@plan.id))
   end
 
   def generate
