@@ -64,7 +64,7 @@ class MealsController < ApplicationController
       lastPlanned:       meal.meal_plan_meals
                              .max_by { |mpm| mpm.meal_plan.week_start_date }
                              &.meal_plan
-                             &.week_start_date,
+                             &.week_start_date
     }
   end
 

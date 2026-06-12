@@ -161,7 +161,7 @@ Meal.find_or_create_by!(
   "Burgers, fries and veggies"             => "burger",
   "Chicken Burgers, fries and veggies"     => "burger",
   "Pasta with Meat Sauce"                  => "pasta",
-  "Chicken Parmesean"                      => "pasta",
+  "Chicken Parmesean"                      => "pasta"
 }.each do |title, group|
   Meal.where(title: title).update_all(variety_group: group)
 end
@@ -172,7 +172,7 @@ end
   "Burgers, fries and veggies"             => "warm_months",
   "Chicken Burgers, fries and veggies"     => "warm_months",
   "Carrot Broccoli Soup and Bread"         => "cold_months",
-  "Zuppa Toscana and Bread"                => "cold_months",
+  "Zuppa Toscana and Bread"                => "cold_months"
 }.each do |title, preference|
   Meal.where(title: title).update_all(seasonal_preference: preference)
 end
