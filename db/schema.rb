@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_27_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_14_192215) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,6 +37,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_130000) do
     t.datetime "created_at", null: false
     t.string "description", null: false
     t.integer "dinner_count", default: 1, null: false
+    t.boolean "is_active", default: true, null: false
     t.integer "kids_rating", limit: 2
     t.integer "nutrition_rating", limit: 2
     t.string "recipe_url"
@@ -44,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_27_130000) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.string "variety_group"
+    t.index ["is_active"], name: "index_meals_on_is_active"
     t.index ["title"], name: "index_meals_on_title", unique: true
   end
 

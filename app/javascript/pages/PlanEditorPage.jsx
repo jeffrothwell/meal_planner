@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getMealPlan, getNewPlanData, createMealPlan, updateMealPlan } from '../api/mealPlans'
-import { getMeals } from '../api/meals'
+import { getActiveMeals } from '../api/meals'
 import { formatWeekDate } from '../utils/mealPlans'
 import PlanEditor from '../components/PlanEditor'
 
@@ -30,8 +30,8 @@ export default function PlanEditorPage() {
   })
 
   const { data: allMealsForEdit, isPending: loadingMeals } = useQuery({
-    queryKey:  ['meals'],
-    queryFn:   getMeals,
+    queryKey:  ['activeMeals'],
+    queryFn:   getActiveMeals,
     enabled:   isEditing,
     staleTime: 5 * 60 * 1000,
   })

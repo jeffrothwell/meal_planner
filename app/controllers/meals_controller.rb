@@ -2,7 +2,8 @@ class MealsController < ApplicationController
   before_action :set_meal, only: [ :show, :edit, :update ]
 
   def index
-    @meals = Meal.includes(meal_plan_meals: :meal_plan).order(updated_at: :desc)
+    base   = params[:active_only] == "true" ? Meal.active : Meal.all
+    @meals = base.includes(meal_plan_meals: :meal_plan).order(is_active: :desc, updated_at: :desc)
     respond_to do |format|
       format.html { render_react_app }
       format.json { render json: @meals.map { |m| meal_json(m) } }
@@ -60,6 +61,7 @@ class MealsController < ApplicationController
       dinnerCount:       meal.dinner_count,
       seasonalPreference: meal.seasonal_preference,
       varietyGroup:      meal.variety_group,
+      isActive:          meal.is_active,
       recipeUrl:         meal.recipe_url,
       lastPlanned:       meal.meal_plan_meals
                              .max_by { |mpm| mpm.meal_plan.week_start_date }
@@ -78,7 +80,8 @@ class MealsController < ApplicationController
       :dinner_count,
       :seasonal_preference,
       :variety_group,
-      :recipe_url
+      :recipe_url,
+      :is_active
     )
   end
 end

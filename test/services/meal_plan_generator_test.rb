@@ -167,6 +167,19 @@ class MealPlanGeneratorTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
+  # Inactive meals
+  # ---------------------------------------------------------------------------
+
+  # The inactive_meal fixture has perfect ratings (9/9/9) but is_active: false.
+  # It must never surface in suggestions regardless of score.
+  test "never suggests inactive meals" do
+    selected = generate(week_start_date: Date.new(2026, 6, 6), meal_count: 6)
+
+    assert selected.all?(&:is_active), "Suggestion included an inactive meal"
+    assert selected.none? { |m| m.id == meals(:inactive_meal).id }
+  end
+
+  # ---------------------------------------------------------------------------
   # Randomness
   # ---------------------------------------------------------------------------
 

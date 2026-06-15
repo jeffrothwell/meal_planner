@@ -38,6 +38,57 @@ class MealsControllerTest < ActionDispatch::IntegrationTest
     assert JSON.parse(response.body).key?("errors")
   end
 
+  test "GET /meals.json response includes isActive field" do
+    get meals_path, as: :json
+    body = JSON.parse(response.body)
+    assert body.first.key?("isActive"), "Meal JSON should include isActive"
+  end
+
+  test "GET /meals.json returns both active and inactive meals" do
+    get meals_path, as: :json
+    body = JSON.parse(response.body)
+    ids  = body.map { |m| m["id"] }.to_set
+    assert_includes ids, meals(:pizza).id
+    assert_includes ids, meals(:inactive_meal).id
+  end
+
+  test "GET /meals.json with active_only=true excludes inactive meals" do
+    get meals_path, params: { active_only: "true" }, as: :json
+    body = JSON.parse(response.body)
+    ids  = body.map { |m| m["id"] }.to_set
+    assert_includes     ids, meals(:pizza).id
+    assert_not_includes ids, meals(:inactive_meal).id
+  end
+
+  test "GET /meals.json orders active meals before inactive meals" do
+    get meals_path, as: :json
+    body          = JSON.parse(response.body)
+    active_idxs   = body.each_index.select { |i|  body[i]["isActive"] }
+    inactive_idxs = body.each_index.select { |i| !body[i]["isActive"] }
+    assert active_idxs.max < inactive_idxs.min,
+      "Expected all active meals to appear before inactive ones"
+  end
+
+  test "POST /meals can create an inactive meal" do
+    post meals_path, params: {
+      meal: { title: "Retired dish", description: "No longer served.", dinner_count: 1, is_active: false }
+    }, as: :json
+    assert_response :created
+    assert_equal false, JSON.parse(response.body)["isActive"]
+  end
+
+  test "PATCH /meals/:id can deactivate a meal" do
+    patch meal_path(meals(:bbq_chicken)), params: { meal: { is_active: false } }, as: :json
+    assert_response :success
+    assert_equal false, JSON.parse(response.body)["isActive"]
+  end
+
+  test "PATCH /meals/:id can reactivate an inactive meal" do
+    patch meal_path(meals(:inactive_meal)), params: { meal: { is_active: true } }, as: :json
+    assert_response :success
+    assert_equal true, JSON.parse(response.body)["isActive"]
+  end
+
   test "GET /meals/:id/edit returns 200" do
     get edit_meal_path(meals(:bbq_chicken))
     assert_response :success

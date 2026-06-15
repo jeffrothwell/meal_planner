@@ -33,6 +33,15 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
     assert_nil body["existingPlanId"],  "Should have no existingPlanId when no plan exists"
   end
 
+  # GET /meal_plans/new — JSON allMeals excludes inactive meals
+  test "GET /meal_plans/new as JSON allMeals excludes inactive meals" do
+    get new_meal_plan_path, as: :json
+    body    = JSON.parse(response.body)
+    all_ids = body["allMeals"].map { |m| m["id"] }.to_set
+    assert_not_includes all_ids, meals(:inactive_meal).id,
+      "allMeals should not include inactive meals"
+  end
+
   # GET /meal_plans/new — JSON returns existingPlanId when a plan already exists
   test "GET /meal_plans/new as JSON returns existingPlanId when plan already exists" do
     upcoming = MealPlan.upcoming_week_start

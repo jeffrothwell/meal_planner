@@ -37,7 +37,7 @@ class MealPlansController < ApplicationController
             existingPlanId: nil,
             mealCount:      meal_count,
             suggestedMeals: suggested.map { |m| meal_json(m) },
-            allMeals:       Meal.order(:title).map { |m| meal_json(m) }
+            allMeals:       Meal.active.order(:title).map { |m| meal_json(m) }
           }
         end
       end

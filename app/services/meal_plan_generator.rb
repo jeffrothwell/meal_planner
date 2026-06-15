@@ -40,7 +40,7 @@ class MealPlanGenerator
     all_excluded    = (last_week_ids + @exclude_meal_ids).uniq
 
     seasonal_prefs = warm_season? ? %w[year_round warm_months] : %w[year_round cold_months]
-    eligible = Meal.where.not(id: all_excluded).where(seasonal_preference: seasonal_prefs)
+    eligible = Meal.active.where.not(id: all_excluded).where(seasonal_preference: seasonal_prefs)
 
     recency = recency_lookup(eligible)
 

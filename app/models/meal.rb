@@ -4,6 +4,9 @@ class Meal < ApplicationRecord
 
   RATING_ATTRIBUTES = %i[nutrition_rating kids_rating adult_rating]
 
+  scope :active,   -> { where(is_active: true) }
+  scope :inactive, -> { where(is_active: false) }
+
   # year_round: suggest any time.
   # warm_months: April–September (Spring + Summer).
   # cold_months: October–March (Fall + Winter).

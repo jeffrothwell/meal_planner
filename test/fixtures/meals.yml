@@ -137,3 +137,12 @@ zuppa_toscana:
   dinner_count: 1
   seasonal_preference: cold_months
   variety_group: soup
+
+inactive_meal:
+  title: "Old Favourite (Retired)"
+  description: "A once-loved meal that has been deactivated and should never appear in suggestions."
+  nutrition_rating: 9
+  kids_rating: 9
+  adult_rating: 9
+  dinner_count: 1
+  is_active: false

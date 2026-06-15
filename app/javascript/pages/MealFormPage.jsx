@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   varietyGroup:       '',
   seasonalPreference: 'year_round',
   recipeUrl:          '',
+  isActive:           true,
 }
 
 // Show any error messages for a field below its input.
@@ -60,6 +61,7 @@ export default function MealFormPage() {
       varietyGroup:       existingMeal.varietyGroup       ?? '',
       seasonalPreference: existingMeal.seasonalPreference ?? 'year_round',
       recipeUrl:          existingMeal.recipeUrl          ?? '',
+      isActive:           existingMeal.isActive           ?? true,
     })
   }, [existingMeal])
 
@@ -78,9 +80,9 @@ export default function MealFormPage() {
   })
 
   function handleChange(e) {
-    const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
-    // Clear the error for this field as soon as the user starts correcting it
+    const { name, value, type, checked } = e.target
+    const newValue = type === 'checkbox' ? checked : value
+    setForm(prev => ({ ...prev, [name]: newValue }))
     if (fieldErrors[name]) {
       setFieldErrors(prev => { const next = { ...prev }; delete next[name]; return next })
     }
@@ -99,6 +101,7 @@ export default function MealFormPage() {
       variety_group:       form.varietyGroup   || null,
       seasonal_preference: form.seasonalPreference,
       recipe_url:          form.recipeUrl      || null,
+      is_active:           form.isActive,
     })
   }
 
@@ -229,6 +232,21 @@ export default function MealFormPage() {
             aria-invalid={!!fieldErrors.recipeUrl}
           />
           <FieldError errors={fieldErrors} field="recipeUrl" />
+        </div>
+
+        <div className="form-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              name="isActive"
+              checked={form.isActive}
+              onChange={handleChange}
+            />
+            Active
+          </label>
+          <p className="form-hint">
+            Inactive meals are hidden from plan suggestions and the meal picker.
+          </p>
         </div>
 
         <div className="form-actions">

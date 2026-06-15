@@ -39,10 +39,13 @@ export default function MealsPage() {
             {meals.map(meal => (
               <tr
                 key={meal.id}
-                className="clickable-row"
+                className={`clickable-row${meal.isActive ? '' : ' meal-row--inactive'}`}
                 onClick={() => navigate(`/meals/${meal.id}`)}
               >
-                <td>{meal.title}</td>
+                <td>
+                  {meal.title}
+                  {!meal.isActive && <span className="inactive-badge">Inactive</span>}
+                </td>
                 <td>{truncate(meal.description, 80)}</td>
                 <td>
                   {meal.nutritionRating != null

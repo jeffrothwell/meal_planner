@@ -2,6 +2,27 @@ require "test_helper"
 
 class MealTest < ActiveSupport::TestCase
   # ---------------------------------------------------------------------------
+  # is_active default and scopes
+  # ---------------------------------------------------------------------------
+
+  test "new meals are active by default" do
+    meal = Meal.new(title: "T", description: "D")
+    assert meal.is_active, "Expected is_active to default to true"
+  end
+
+  test "Meal.active returns only active meals" do
+    active_ids = Meal.active.pluck(:id).to_set
+    assert_includes active_ids, meals(:pizza).id
+    assert_not_includes active_ids, meals(:inactive_meal).id
+  end
+
+  test "Meal.inactive returns only inactive meals" do
+    inactive_ids = Meal.inactive.pluck(:id).to_set
+    assert_includes inactive_ids, meals(:inactive_meal).id
+    assert_not_includes inactive_ids, meals(:pizza).id
+  end
+
+  # ---------------------------------------------------------------------------
   # Presence validations
   # ---------------------------------------------------------------------------
 
