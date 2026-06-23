@@ -11,11 +11,12 @@ class MealPlan < ApplicationRecord
   DEFAULT_MEAL_COUNT = 6
 
   # The Saturday that meal planning should target right now.
-  # If today is Saturday (shopping day), plan for this week.
-  # Any other day, the current week is already underway — plan for next Saturday.
+  # The current week's Saturday is the target unless a plan already exists for it,
+  # in which case the following Saturday is returned instead.
   def self.upcoming_week_start
-    today = Date.today
-    today.saturday? ? today : today.next_occurring(:saturday)
+    today        = Date.today
+    current_week = today.saturday? ? today : today.prev_occurring(:saturday)
+    MealPlan.exists?(week_start_date: current_week) ? current_week + 7 : current_week
   end
 
   # Pure computation — no DB writes, no side effects on the model.

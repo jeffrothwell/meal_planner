@@ -3,26 +3,40 @@ require "test_helper"
 class MealPlanTest < ActiveSupport::TestCase
   # ---------------------------------------------------------------------------
   # upcoming_week_start
-  # Targets this Saturday if today IS Saturday (shopping day),
-  # otherwise the NEXT Saturday (current week is already underway).
+  # Returns the Saturday that started the current week (or today if Saturday).
+  # If a plan already exists for that week, returns the following Saturday instead.
   # ---------------------------------------------------------------------------
 
-  test "upcoming_week_start returns today when today is Saturday" do
-    travel_to Date.new(2026, 5, 30) do # a Saturday
-      assert_equal Date.new(2026, 5, 30), MealPlan.upcoming_week_start
+  test "upcoming_week_start returns the current Saturday when no plan exists for this week" do
+    travel_to Date.new(2026, 6, 6) do # a Saturday, no plan in fixtures for this week
+      assert_equal Date.new(2026, 6, 6), MealPlan.upcoming_week_start
     end
   end
 
-  test "upcoming_week_start returns next Saturday when today is not Saturday" do
-    travel_to Date.new(2026, 5, 26) do # a Tuesday
-      assert_equal Date.new(2026, 5, 30), MealPlan.upcoming_week_start
+  test "upcoming_week_start returns the most recent Saturday mid-week when no plan exists" do
+    travel_to Date.new(2026, 6, 10) do # a Wednesday; current week started June 6
+      assert_equal Date.new(2026, 6, 6), MealPlan.upcoming_week_start
     end
   end
 
-  test "upcoming_week_start returns next Saturday when today is Friday" do
-    travel_to Date.new(2026, 5, 29) do # a Friday
-      assert_equal Date.new(2026, 5, 30), MealPlan.upcoming_week_start
+  test "upcoming_week_start returns the following Saturday when a plan already exists for the current week" do
+    plan = MealPlan.create!(week_start_date: Date.new(2026, 6, 6), meal_count: 6)
+
+    travel_to Date.new(2026, 6, 8) do # a Monday; current week started June 6
+      assert_equal Date.new(2026, 6, 13), MealPlan.upcoming_week_start
     end
+  ensure
+    plan&.destroy
+  end
+
+  test "upcoming_week_start returns the following Saturday even when today is Saturday and a plan already exists" do
+    plan = MealPlan.create!(week_start_date: Date.new(2026, 6, 6), meal_count: 6)
+
+    travel_to Date.new(2026, 6, 6) do # Saturday but the plan was already saved
+      assert_equal Date.new(2026, 6, 13), MealPlan.upcoming_week_start
+    end
+  ensure
+    plan&.destroy
   end
 
   # ---------------------------------------------------------------------------

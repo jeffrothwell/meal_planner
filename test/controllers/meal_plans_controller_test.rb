@@ -42,17 +42,23 @@ class MealPlansControllerTest < ActionDispatch::IntegrationTest
       "allMeals should not include inactive meals"
   end
 
-  # GET /meal_plans/new — JSON returns existingPlanId when a plan already exists
-  test "GET /meal_plans/new as JSON returns existingPlanId when plan already exists" do
-    upcoming = MealPlan.upcoming_week_start
-    plan = MealPlan.create!(week_start_date: upcoming, meal_count: 6)
+  # GET /meal_plans/new — JSON returns existingPlanId when the target week already has a plan.
+  # With the current week covered, upcoming_week_start advances to the following Saturday.
+  # If that following Saturday also already has a plan (e.g. created in another tab),
+  # the controller returns existingPlanId for it.
+  test "GET /meal_plans/new as JSON returns existingPlanId when the target week already has a plan" do
+    current_plan = MealPlan.create!(week_start_date: Date.new(2026, 6, 6), meal_count: 6)
+    next_plan    = MealPlan.create!(week_start_date: Date.new(2026, 6, 13), meal_count: 6)
 
-    get new_meal_plan_path, as: :json
-    assert_response :success
-    body = JSON.parse(response.body)
-    assert_equal plan.id, body["existingPlanId"]
+    travel_to Date.new(2026, 6, 8) do # Monday; current week (June 6) has a plan, next (June 13) too
+      get new_meal_plan_path, as: :json
+      assert_response :success
+      body = JSON.parse(response.body)
+      assert_equal next_plan.id, body["existingPlanId"]
+    end
   ensure
-    plan&.destroy
+    current_plan&.destroy
+    next_plan&.destroy
   end
 
   # POST /meal_plans — valid params
