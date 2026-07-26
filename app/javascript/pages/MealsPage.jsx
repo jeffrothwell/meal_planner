@@ -1,21 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getMeals } from '../api/meals'
 import { SEASONAL_LABELS, formatDate, truncate } from '../utils/meals'
 
 export default function MealsPage() {
-  const navigate = useNavigate()
+  const navigate       = useNavigate()
+  const [query, setQuery] = useState('')
+
   const { data: meals, isPending, isError } = useQuery({
     queryKey: ['meals'],
     queryFn: getMeals,
   })
 
+  const filteredMeals = meals
+    ? meals.filter(m => m.title.toLowerCase().includes(query.toLowerCase()))
+    : []
+
   return (
     <div>
       <h1>Meals</h1>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="meals-toolbar">
+        <input
+          type="search"
+          className="meals-search"
+          placeholder="Search by title…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          aria-label="Search meals by title"
+        />
         <Link to="/meals/new" className="btn">Add meal</Link>
       </div>
 
@@ -36,7 +50,10 @@ export default function MealsPage() {
             </tr>
           </thead>
           <tbody>
-            {meals.map(meal => (
+            {filteredMeals.length === 0 && (
+              <tr><td colSpan={7} style={{ color: '#999', fontStyle: 'italic' }}>No meals match your search.</td></tr>
+            )}
+            {filteredMeals.map(meal => (
               <tr
                 key={meal.id}
                 className={`clickable-row${meal.isActive ? '' : ' meal-row--inactive'}`}

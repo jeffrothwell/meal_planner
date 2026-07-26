@@ -19,7 +19,12 @@ export default function MealDetailPage() {
 
   return (
     <div>
-      <h1>{meal.title}</h1>
+      <div className="detail-header">
+        <h1>{meal.title}</h1>
+        <span className={`status-pill status-pill--${meal.isActive ? 'active' : 'inactive'}`}>
+          {meal.isActive ? 'Active' : 'Inactive'}
+        </span>
+      </div>
 
       {notice && <div className="flash-notice">{notice}</div>}
 
