@@ -32,10 +32,17 @@ export default function MealPlanDetailPage() {
       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
         {plan.meals.map(meal => (
           <li key={meal.id} style={{ padding: '0.6rem 0', borderBottom: '1px solid #e5e5e2' }}>
-            <span style={{ fontWeight: 600 }}>{meal.title}</span>
-            <span style={{ fontSize: '0.85rem', color: '#666', marginLeft: '0.5rem' }}>
-              ({nights(meal.dinnerCount)})
-            </span>
+            <div>
+              <Link to={`/meals/${meal.id}`} style={{ fontWeight: 600 }}>{meal.title}</Link>
+              <span style={{ fontSize: '0.85rem', color: '#666', marginLeft: '0.5rem' }}>
+                ({nights(meal.dinnerCount)})
+              </span>
+            </div>
+            {meal.description && (
+              <div style={{ fontSize: '0.88rem', color: '#555', marginTop: '0.2rem' }}>
+                {meal.description}
+              </div>
+            )}
           </li>
         ))}
       </ul>

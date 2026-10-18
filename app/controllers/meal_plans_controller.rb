@@ -92,10 +92,11 @@ class MealPlansController < ApplicationController
     exclude_meal_ids = Array(params[:exclude_meal_ids]).map(&:to_i)
     swapped_meal     = Meal.find_by(id: params[:swapped_meal_id])
     dinner_count     = swapped_meal&.dinner_count || 1
+    meal_count       = params[:meal_count].present? ? params[:meal_count].to_i : dinner_count
 
     meals = MealPlan.suggest_swap(
       week_start_date:  week_start_date,
-      meal_count:       dinner_count,
+      meal_count:       meal_count,
       exclude_meal_ids: exclude_meal_ids
     )
 

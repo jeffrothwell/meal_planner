@@ -261,9 +261,64 @@ tr.meal-row--inactive:hover td { background: #f4f4f2; }
 .plan-meal-item__swap-panel {
   margin-top: 0.5rem;
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  align-items: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.swap-suggestions {
+  display: flex;
   flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.swap-suggestion-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  min-width: 110px;
+}
+.swap-suggestion-chip:hover {
+  background: #f0f9f4;
+  border-color: #2d6a4f;
+}
+.swap-suggestion-chip__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.swap-suggestion-chip__nights {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.1rem;
+}
+
+.swap-panel__bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.swap-panel__bottom-row select {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.swap-panel__loading {
+  font-size: 0.85rem;
+  color: #999;
+  font-style: italic;
+  margin: 0;
 }
 
 .plan-editor__status {

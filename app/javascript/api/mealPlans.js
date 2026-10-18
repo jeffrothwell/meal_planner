@@ -14,10 +14,11 @@ export function generateMealPlan({ weekStartDate, mealCount, excludeMealIds = []
   return get(`/meal_plans/generate?${params}`)
 }
 
-export function suggestSwap({ weekStartDate, swappedMealId, excludeMealIds = [] }) {
+export function suggestSwap({ weekStartDate, swappedMealId, excludeMealIds = [], mealCount = null }) {
   const params = new URLSearchParams()
   params.set('week_start_date', weekStartDate)
   params.set('swapped_meal_id', swappedMealId)
+  if (mealCount !== null) params.set('meal_count', mealCount)
   excludeMealIds.forEach(id => params.append('exclude_meal_ids[]', id))
   return get(`/meal_plans/suggest_swap?${params}`)
 }

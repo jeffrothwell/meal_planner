@@ -25,7 +25,6 @@ function reducer(state, action) {
     }
 
     case 'OPEN_SWAP':
-      // Close any other open panel, or toggle this one closed
       return {
         ...state,
         swapOpenId: state.swapOpenId === action.id ? null : action.id,
@@ -35,8 +34,6 @@ function reducer(state, action) {
       return { ...state, swapOpenId: null }
 
     case 'SWAP_MEAL': {
-      // Replace the meal at its current index with one or more replacements.
-      // Also records the displaced meal as excluded so it won't be suggested again.
       const { id, replacements } = action
       const idx = state.meals.findIndex(m => m.id === id)
       const newMeals = [
@@ -84,9 +81,7 @@ function StatusBar({ meals, mealCount }) {
 
 // ── Meal item ────────────────────────────────────────────────────────────────
 
-function MealItem({ meal, isSwapOpen, availableMeals, isPicking, onOpenSwap, onRemove, onManualSwap, onPickForMe }) {
-  const [selectedId, setSelectedId] = useState('')
-
+function MealItem({ meal, isSwapOpen, availableMeals, suggestions, isLoadingSuggestions, onOpenSwap, onRemove, onManualSwap }) {
   const ratings = [
     meal.nutritionRating != null && `Nutrition: ${meal.nutritionRating}`,
     meal.kidsRating      != null && `Kids: ${meal.kidsRating}`,
@@ -109,39 +104,50 @@ function MealItem({ meal, isSwapOpen, availableMeals, isPicking, onOpenSwap, onR
 
         {isSwapOpen && (
           <div className="plan-meal-item__swap-panel">
-            <select
-              value={selectedId}
-              onChange={e => setSelectedId(e.target.value)}
-              style={{ padding: '0.4rem', border: '1px solid #ccc', borderRadius: '6px' }}
-            >
-              <option value="">— Choose a replacement —</option>
-              {availableMeals.map(m => (
-                <option key={m.id} value={m.id}>{m.title}</option>
-              ))}
-            </select>
-            <button
-              type="button" className="btn btn--sm"
-              onClick={() => {
-                if (!selectedId) return
-                const newMeal = availableMeals.find(m => m.id === parseInt(selectedId))
-                if (newMeal) onManualSwap(meal, [newMeal])
-              }}
-            >
-              Swap
-            </button>
-            <button
-              type="button" className="btn btn--sm"
-              disabled={isPicking}
-              onClick={() => onPickForMe(meal)}
-            >
-              {isPicking ? 'Picking…' : 'Pick for me'}
-            </button>
-            <button
-              type="button" className="btn btn--sm"
-              onClick={() => onOpenSwap(meal.id)}
-            >
-              Cancel
-            </button>
+            {isLoadingSuggestions ? (
+              <p className="swap-panel__loading">Finding suggestions…</p>
+            ) : (
+              <div className="swap-suggestions">
+                {suggestions.length === 0
+                  ? <span className="swap-panel__loading">No suggestions available.</span>
+                  : suggestions.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="swap-suggestion-chip"
+                        onClick={() => onManualSwap(meal, [s])}
+                      >
+                        <span className="swap-suggestion-chip__title">{s.title}</span>
+                        <span className="swap-suggestion-chip__nights">
+                          {s.dinnerCount} {s.dinnerCount === 1 ? 'night' : 'nights'}
+                        </span>
+                      </button>
+                    ))
+                }
+              </div>
+            )}
+
+            <div className="swap-panel__bottom-row">
+              <select
+                defaultValue=""
+                onChange={e => {
+                  if (!e.target.value) return
+                  const newMeal = availableMeals.find(m => m.id === parseInt(e.target.value))
+                  if (newMeal) onManualSwap(meal, [newMeal])
+                }}
+              >
+                <option value="">— Choose any replacement —</option>
+                {availableMeals.map(m => (
+                  <option key={m.id} value={m.id}>{m.title}</option>
+                ))}
+              </select>
+              <button
+                type="button" className="btn btn--sm"
+                onClick={() => onOpenSwap(meal.id)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -182,55 +188,57 @@ export default function PlanEditor({
     swapOpenId:          null,
   })
 
-  // Track which meal slot is actively fetching a "pick for me" suggestion
-  const [pickingForMealId, setPickingForMealId] = useState(null)
-  const [addMealId, setAddMealId]               = useState('')
+  const [swapSuggestions,       setSwapSuggestions]       = useState({})
+  const [loadingSuggestionsForId, setLoadingSuggestionsForId] = useState(null)
+  const [addMealId,              setAddMealId]              = useState('')
 
-  // Meals not already in the plan — used for the add-meal dropdown and swap selects
-  const currentIds    = new Set(state.meals.map(m => m.id))
+  const currentIds     = new Set(state.meals.map(m => m.id))
   const availableMeals = allMeals.filter(m => !currentIds.has(m.id))
 
   // ── Regenerate ─────────────────────────────────────────────────────────────
   const regenerateMutation = useMutation({
     mutationFn: () => generateMealPlan({
       weekStartDate,
-      mealCount:       state.mealCount,
-      excludeMealIds:  state.manuallyExcludedIds,
+      mealCount:      state.mealCount,
+      excludeMealIds: state.manuallyExcludedIds,
     }),
     onSuccess: (data) => dispatch({ type: 'SET_MEALS', meals: data.meals }),
     onError:   ()     => alert('Failed to regenerate. Please try again.'),
   })
 
-  // ── Pick for me ────────────────────────────────────────────────────────────
-  const swapMutation = useMutation({
+  // ── Fetch swap suggestions (fires when a swap panel opens) ─────────────────
+  const fetchSuggestionsMutation = useMutation({
     mutationFn: ({ meal }) => {
-      // Include the displaced meal in the exclusion list before fetching
-      const excluded = state.manuallyExcludedIds.includes(meal.id)
-        ? state.manuallyExcludedIds
-        : [...state.manuallyExcludedIds, meal.id]
-      const excludeIds = [
+      const excluded = [
         ...state.meals.filter(m => m.id !== meal.id).map(m => m.id),
-        ...excluded,
+        ...(state.manuallyExcludedIds.includes(meal.id)
+          ? state.manuallyExcludedIds
+          : [...state.manuallyExcludedIds, meal.id]),
       ]
-      return suggestSwap({ weekStartDate, swappedMealId: meal.id, excludeMealIds: excludeIds })
+      return suggestSwap({
+        weekStartDate,
+        swappedMealId:  meal.id,
+        excludeMealIds: excluded,
+        mealCount:      3,
+      })
     },
     onSuccess: (data, { meal }) => {
-      setPickingForMealId(null)
-      if (data.meals?.length) {
-        dispatch({ type: 'SWAP_MEAL', id: meal.id, replacements: data.meals })
-      } else {
-        alert('No suggestion available.')
-      }
+      setLoadingSuggestionsForId(null)
+      setSwapSuggestions(prev => ({ ...prev, [meal.id]: data.meals ?? [] }))
     },
-    onError: () => {
-      setPickingForMealId(null)
-      alert('Failed to get suggestion. Please try again.')
-    },
+    onError: () => setLoadingSuggestionsForId(null),
   })
 
-  function handlePickForMe(meal) {
-    setPickingForMealId(meal.id)
-    swapMutation.mutate({ meal })
+  function handleOpenSwap(id) {
+    const isOpening = state.swapOpenId !== id
+    dispatch({ type: 'OPEN_SWAP', id })
+    if (isOpening) {
+      const meal = state.meals.find(m => m.id === id)
+      if (meal) {
+        setLoadingSuggestionsForId(id)
+        fetchSuggestionsMutation.mutate({ meal })
+      }
+    }
   }
 
   function handleAddMeal() {
@@ -271,13 +279,13 @@ export default function PlanEditor({
             meal={meal}
             isSwapOpen={state.swapOpenId === meal.id}
             availableMeals={availableMeals}
-            isPicking={pickingForMealId === meal.id}
-            onOpenSwap={id   => dispatch({ type: 'OPEN_SWAP', id })}
+            suggestions={swapSuggestions[meal.id] ?? []}
+            isLoadingSuggestions={loadingSuggestionsForId === meal.id}
+            onOpenSwap={handleOpenSwap}
             onRemove={id     => dispatch({ type: 'REMOVE_MEAL', id })}
             onManualSwap={(meal, replacements) =>
               dispatch({ type: 'SWAP_MEAL', id: meal.id, replacements })
             }
-            onPickForMe={handlePickForMe}
           />
         ))}
       </ul>
