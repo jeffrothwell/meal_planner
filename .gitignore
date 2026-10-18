@@ -34,6 +34,9 @@
 /config/*.key
 
 
+# Database dumps
+/db/seeds_dump.sql
+
 # Vite Ruby
 /public/vite*
 node_modules
