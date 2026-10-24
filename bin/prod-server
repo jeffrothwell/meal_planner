@@ -1,0 +1,10 @@
+#!/bin/bash
+# Run the app in production mode on the local network (used by launchd).
+# Secrets live in .env.production.local (untracked).
+set -e
+cd "$(dirname "$0")/.."
+export PATH="$HOME/.local/share/mise/installs/ruby/4.0.7/bin:/opt/homebrew/bin:/usr/bin:/bin"
+set -a
+. ./.env.production.local
+set +a
+exec bin/rails server -b 0.0.0.0 -p "${PORT:-3000}"
