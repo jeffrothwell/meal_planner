@@ -138,6 +138,11 @@ zuppa_toscana:
   seasonal_preference: cold_months
   variety_group: soup
 
+unrated_meal:
+  title: "Mystery Casserole"
+  description: "A new meal with no ratings yet."
+  dinner_count: 1
+
 inactive_meal:
   title: "Old Favourite (Retired)"
   description: "A once-loved meal that has been deactivated and should never appear in suggestions."

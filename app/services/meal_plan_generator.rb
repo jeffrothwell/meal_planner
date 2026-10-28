@@ -88,7 +88,7 @@ class MealPlanGenerator
   end
 
   def score(meal, last_used_on)
-    base = SCORING_WEIGHTS.sum { |attr, weight| (meal.send(attr) || 0) * weight }
+    base = SCORING_WEIGHTS.sum { |attr, weight| (meal.send(attr) || 6) * weight }
 
     recency_bonus = if last_used_on.nil?
       MAX_RECENCY_BONUS

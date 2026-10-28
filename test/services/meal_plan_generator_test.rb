@@ -167,6 +167,26 @@ class MealPlanGeneratorTest < ActiveSupport::TestCase
   end
 
   # ---------------------------------------------------------------------------
+  # Nil rating handling
+  # ---------------------------------------------------------------------------
+
+  # A meal with no ratings should score as if each nil rating were 6 (neutral)
+  # rather than 0, giving it a real base score and a fighting chance in suggestions.
+  test "a meal with nil ratings is eligible and selectable" do
+    unrated   = meals(:unrated_meal)
+    all_other = Meal.where.not(id: unrated.id).pluck(:id)
+
+    selected = generate(
+      week_start_date:  Date.new(2026, 6, 6),
+      meal_count:       1,
+      exclude_meal_ids: all_other
+    )
+
+    assert_equal [ unrated.id ], selected.map(&:id),
+      "Unrated meal should be selected when it is the only eligible meal"
+  end
+
+  # ---------------------------------------------------------------------------
   # Inactive meals
   # ---------------------------------------------------------------------------
 
