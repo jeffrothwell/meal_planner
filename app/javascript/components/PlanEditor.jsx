@@ -1,6 +1,7 @@
 import React, { useReducer, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { generateMealPlan, suggestSwap } from '../api/mealPlans'
+import MealPopover from './MealPopover'
 
 // ── Reducer ─────────────────────────────────────────────────────────────────
 
@@ -91,7 +92,9 @@ function MealItem({ meal, isSwapOpen, availableMeals, suggestions, isLoadingSugg
   return (
     <li className="plan-meal-item">
       <div className="plan-meal-item__info">
-        <div className="plan-meal-item__title">{meal.title}</div>
+        <MealPopover meal={meal}>
+          <span className="plan-meal-item__title">{meal.title}</span>
+        </MealPopover>
         <div className="plan-meal-item__meta">
           {meal.dinnerCount} {meal.dinnerCount === 1 ? 'night' : 'nights'}
           {ratings.length > 0 && (

@@ -123,6 +123,7 @@ class MealPlansController < ApplicationController
       id:              meal.id,
       title:           meal.title,
       description:     meal.description,
+      recipeUrl:       meal.recipe_url,
       dinnerCount:     meal.dinner_count,
       nutritionRating: meal.nutrition_rating,
       kidsRating:      meal.kids_rating,

@@ -253,7 +253,38 @@ tr.meal-row--inactive:hover td { background: #f4f4f2; }
 }
 
 .plan-meal-item__info { flex: 1; }
+
 .plan-meal-item__title { font-weight: 600; }
+
+.meal-popover-wrap { position: relative; display: inline-block; }
+
+.meal-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 0.75rem 1rem;
+  width: 280px;
+  pointer-events: auto;
+}
+.meal-popover__desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.4;
+}
+.meal-popover__desc:last-child { margin-bottom: 0; }
+.meal-popover__link {
+  font-size: 0.82rem;
+  color: #2d6a4f;
+  text-decoration: none;
+}
+.meal-popover__link:hover { text-decoration: underline; }
+
 .plan-meal-item__meta { font-size: 0.82rem; color: #666; }
 
 .plan-meal-item__actions { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: flex-start; }

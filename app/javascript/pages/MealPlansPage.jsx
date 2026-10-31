@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getMealPlans } from '../api/mealPlans'
 import { formatWeekDate } from '../utils/mealPlans'
+import MealPopover from '../components/MealPopover'
 
 export default function MealPlansPage() {
   const { data: plans, isPending, isError } = useQuery({
@@ -33,7 +34,13 @@ export default function MealPlansPage() {
           </h2>
           <ul style={{ margin: '0.5rem 0' }}>
             {plan.meals.map(meal => (
-              <li key={meal.id}>{meal.title}</li>
+              <li key={meal.id}>
+                <MealPopover meal={meal}>
+                  <Link to={`/meals/${meal.id}`} target="_blank" rel="noopener noreferrer">
+                    {meal.title}
+                  </Link>
+                </MealPopover>
+              </li>
             ))}
           </ul>
           <p style={{ fontSize: '0.9rem', color: '#555', margin: '0.5rem 0' }}>
